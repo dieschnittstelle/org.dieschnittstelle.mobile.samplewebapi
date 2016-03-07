@@ -1,0 +1,5 @@
+for creating an executable war/jar:
+- http://tomcat.apache.org/maven-plugin-trunk/executable-war-jar.html
+- make sure to create the jar using:
+mvn clean package -Prunnable-war
+(see http://ufasoli.blogspot.de/2013/11/create-runnable-war-with-embedded.html?q=runnable+war)

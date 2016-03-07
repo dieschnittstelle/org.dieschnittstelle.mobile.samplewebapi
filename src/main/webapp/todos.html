@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Todos</title>
+</head>
+<script type="text/javascript">
+var todos;
+
+function readAllTodos() {
+	
+	callWebapp("GET", "/api/todos", null, function(xmlhttp) {
+		todos = eval("(" + xmlhttp.responseText + ")");
+		drawTodosTable();
+	});	
+}
+
+function deleteTodo(todoId) {
+
+	callWebapp("DELETE", "/api/todos/" + todoId, null, function(xmlhttp) {
+		if ("true" == xmlhttp.responseText) {
+			var deleteIndex = -1;
+			// we iterate over the list until we have found the item
+			for (var i=0 ; i<todos.length ; i++) {
+				if (todos[i].id == todoId) {
+					deleteIndex = i;
+					//break;
+				}
+			}
+
+		if (deleteIndex != -1) {
+				todos.splice(deleteIndex,1);
+				drawTodosTable();
+		}
+		}
+	} 
+	);
+		
+}
+
+function createTodo(createForm) {
+
+	var todo = new Object();
+	todo.name = createForm.name.value;
+	todo.description = createForm.description.value;
+
+	callWebapp("POST", "/api/todos", todo, function(xmlhttp) {
+		//alert("read serialised: " + xmlhttp.responseText);
+		
+		createdTodo = eval("(" + xmlhttp.responseText + ")");
+
+		todos.push(createdTodo);
+		drawTodosTable();
+	});
+}
+
+
+/*
+ * call the webapp passing parameters and callback methods
+ *
+ * method: the http method to be executed
+ * requestpath: the path to be appended to the root path of the webapp
+ * obj: an (optional object to be passed)
+ * onsucccess: callback in case of success
+ * onerror: callback in case of error
+ */
+function callWebapp(method, requestpath, obj, onsuccess, onerror) {
+	// create the request
+	var xmlhttp = new XMLHttpRequest();
+
+	var url = null;
+	if (requestpath.indexOf("/") == 0) {
+		url = requestpath.substring(1);
+	} else {
+		url = requestpath;
+	}
+
+	// access the url
+	xmlhttp.open(method, url, true);
+
+	var json;
+
+	// set the proper header information along with the request
+	if (obj) {
+		// create a json representation from the object
+		json = JSON.stringify(obj);
+		// set the json header
+		xmlhttp.setRequestHeader("Content-type", "application/json");
+	}
+
+	// set the header that we only accept json content
+	xmlhttp.setRequestHeader("Accept", "application/json");
+
+	xmlhttp.setRequestHeader("Connection", "close");
+
+	// define the callback function using our own callback arguments
+	xmlhttp.onreadystatechange = function() {
+		if (xmlhttp.readyState == 4) {
+			if (xmlhttp.status == 200) {
+				if (onsuccess) {
+					onsuccess(xmlhttp);
+				} else {
+					alert("request "
+							+ url
+							+ " executed successfully, but no onsuccess callback is specified.")
+				}
+			} else {
+				if (onerror) {
+					onerror(xmlhttp);
+				} else {
+					alert("got error processing request "
+							+ url
+							+ ", but no onerror callback is specified. Status code is: "
+							+ xmlhttp.status);
+				}
+			}
+		}
+	};
+
+	// send the request and pass the json string as content
+	if (obj) {
+		xmlhttp.send(json);
+	} else {
+		xmlhttp.send();
+	}
+}
+
+function drawTodosTable() {
+		// retrieve the table content
+		var tableContentElement = document.getElementById("todosTable");
+
+		// remove all data
+		while (tableContentElement.firstChild) {
+			tableContentElement.removeChild(tableContentElement.firstChild);
+		}
+
+		// add the header
+		var tr = document.createElement("tr");
+		tableContentElement.appendChild(tr);
+
+		var th = document.createElement("th");
+		tr.appendChild(th);
+		th.appendChild(document.createTextNode("Id"));
+
+		th = document.createElement("th");
+		tr.appendChild(th);
+		th.appendChild(document.createTextNode("Name"));
+
+		th = document.createElement("th");
+		tr.appendChild(th);
+		th.appendChild(document.createTextNode("Description"));	
+		
+		th = document.createElement("th");
+		tr.appendChild(th);
+		th.appendChild(document.createTextNode("Expiry"));
+
+		th = document.createElement("th");
+		tr.appendChild(th);
+		th.appendChild(document.createTextNode("Done"));
+
+		th = document.createElement("th");
+		tr.appendChild(th);
+		th.appendChild(document.createTextNode("Favourite"));
+
+		th = document.createElement("th");
+		tr.appendChild(th);
+		th.appendChild(document.createTextNode("Contacts"));
+
+		th = document.createElement("th");
+		tr.appendChild(th);
+		th.appendChild(document.createTextNode("Location"));
+
+		// and then we add a new tr for each element of the list
+		for (var i = 0; i < todos.length; i++) {
+			var currentTodo = todos[i];
+
+			var tr = document.createElement("tr");
+			// id
+			var td = document.createElement("td");
+			tr.appendChild(td);
+			td.appendChild(document.createTextNode(currentTodo.id));
+			// name
+			td = document.createElement("td");
+			tr.appendChild(td);
+			td.appendChild(document.createTextNode(currentTodo.name));
+			// description
+			td= document.createElement("td");
+			tr.appendChild(td);
+			td.appendChild(document.createTextNode(currentTodo.description));
+			// expiry
+			td = document.createElement("td");
+			tr.appendChild(td);
+			td.appendChild(document.createTextNode(currentTodo.expiry ? currentTodo.expiry : ""));
+			// done
+			td = document.createElement("td");
+			tr.appendChild(td);
+			td.appendChild(document.createTextNode(currentTodo.done));
+			// favourite
+			td = document.createElement("td");
+			tr.appendChild(td);
+			td.appendChild(document.createTextNode(currentTodo.favourite));
+			// contacts
+			td = document.createElement("td");
+			tr.appendChild(td);
+			td.appendChild(document.createTextNode(currentTodo.contacts ? currentTodo.contacts : ""));
+			// location
+			td = document.createElement("td");
+			tr.appendChild(td);
+			td.appendChild(document.createTextNode(currentTodo.location ? JSON.stringify(currentTodo.location) : ""));
+
+			// now create the delete form
+			td = document.createElement("td");
+			tr.appendChild(td);	
+			var form = document.createElement("form");
+			td.appendChild(form);
+			form.setAttribute("method", "POST");
+			form.setAttribute("action","javascript:deleteTodo(\'" + currentTodo.id + "\')");
+			var input = document.createElement("input");
+			form.appendChild(input);
+			input.setAttribute("type", "submit");
+			input.setAttribute("value", "delete");
+
+			tableContentElement.appendChild(tr);
+		}
+}
+</script>
+<body onload="readAllTodos()">
+	<h3>Todos</h3>
+
+	<!-- create a table -->
+	<table border="1" id="todosTable">
+	</table>
+	<!--  create a new todo -->
+	<h3>New Todo</h3>
+	<form id="createForm" method="POST"
+		action="javascript:createTodo(document.getElementById('createForm'))">
+		<table>
+			<tr>
+				<td>Name:</td>
+				<td><input type="text" name="name"></td>
+			</tr>
+			<tr>
+				<td>Description</td>
+				<td><input type="textarea" name="description"></td>
+			</tr>
+		</table>
+		<input type="submit" value="create" />
+	</form>
+</body>
+</html>
