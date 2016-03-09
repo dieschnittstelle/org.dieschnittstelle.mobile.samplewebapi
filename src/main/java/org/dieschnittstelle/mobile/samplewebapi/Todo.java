@@ -125,7 +125,7 @@ public class Todo implements Serializable, GenericCRUDEntity {
 	/*
 	 * an inner class for representing a geolocation
 	 */
-	public static class LatLng {
+	public static class LatLng implements Serializable {
 
 		private double lat;
 		private double lng;
@@ -157,7 +157,7 @@ public class Todo implements Serializable, GenericCRUDEntity {
 
 	}
 
-	public static class Location {
+	public static class Location implements Serializable {
 
 		private String name;
 
