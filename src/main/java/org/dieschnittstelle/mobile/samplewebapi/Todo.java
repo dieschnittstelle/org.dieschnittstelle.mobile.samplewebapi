@@ -38,13 +38,13 @@ public class Todo implements Serializable, GenericCRUDEntity {
 	private List<String> contacts;
 
 	// a geolocation
-	private LatLng location;
+	private Location location;
 
-	public LatLng getLocation() {
+	public Location getLocation() {
 		return location;
 	}
 
-	public void setLocation(LatLng location) {
+	public void setLocation(Location location) {
 		this.location = location;
 	}
 
@@ -154,6 +154,40 @@ public class Todo implements Serializable, GenericCRUDEntity {
 		public void setLng(double lng) {
 			this.lng = lng;
 		}
+
+	}
+
+	public static class Location {
+
+		private String name;
+
+		private LatLng latlng;
+
+		public Location() {
+
+		}
+
+		public Location(String name,LatLng latlng) {
+			this.name = name;
+			this.latlng = latlng;
+		}
+
+		public LatLng getLatlng() {
+			return latlng;
+		}
+
+		public void setLatlng(LatLng latlng) {
+			this.latlng = latlng;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+
 
 	}
 

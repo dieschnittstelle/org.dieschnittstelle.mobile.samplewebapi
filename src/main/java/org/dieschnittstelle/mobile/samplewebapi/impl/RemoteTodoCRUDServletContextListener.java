@@ -40,7 +40,7 @@ public class RemoteTodoCRUDServletContextListener implements ServletContextListe
 		// we create a new executor for a file to be stored in the context root
 		String rootPath = evt.getServletContext().getRealPath("/");
 		GenericCRUDExecutor<Todo> exec = new GenericCRUDExecutor<Todo>(new File(rootPath,
-				"todos.data"));
+				"todos.data"), true);
 
 		// we call load() on the executor to load any exsisting data (if there
 		// are any)

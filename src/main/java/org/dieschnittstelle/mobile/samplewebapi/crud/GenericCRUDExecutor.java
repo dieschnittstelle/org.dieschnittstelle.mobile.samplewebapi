@@ -8,20 +8,29 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.log4j.Logger;
 
 /**
  * partial generic CRUD operations for objects which are read in /
  * written to a file
- * 
+ *
  * @author kreutel
- * 
+ *
  */
 public class GenericCRUDExecutor<T extends GenericCRUDEntity> {
+
+	protected static Logger logger = Logger.getLogger(GenericCRUDExecutor.class);
 
 	/**
 	 * the id counter
 	 */
-	private int currentObjectId;
+	private long currentObjectId;
+
+	/*
+	 * whether we accept external ids
+	 */
+	private boolean acceptExternalIds;
+
 
 	/**
 	 * the file that contains the "database"
@@ -37,19 +46,53 @@ public class GenericCRUDExecutor<T extends GenericCRUDEntity> {
 	 * create the executor passing a file
 	 */
 	public GenericCRUDExecutor(File databaseFile) {
-		System.out.println("<constructor>: " + databaseFile);
+		logger.info("<constructor>: " + databaseFile);
 		this.objectsDatabaseFile = databaseFile;
+	}
+
+	public GenericCRUDExecutor(File databaseFile,boolean acceptExternalIds) {
+		this(databaseFile);
+		this.acceptExternalIds = acceptExternalIds;
 	}
 
 	/**
 	 * create an object
 	 */
 	public T createObject(T obj) {
-		System.out.println("createObject(): " + obj);
+		logger.info("createObject(): " + obj);
 
-		// assign an id and add it to the list
-		obj.setId(currentObjectId++);
-		this.objects.add(obj);
+		// consider the case that ids are set from outside
+		if (acceptExternalIds) {
+			// check whether the element has an id set - it might be problematic if the id 0 is given - this needs to
+			if (obj.getId() > 0) {
+				// check whether we already have an an object with the given id
+				T existingobj = this.readObject(obj.getId());
+				if (existingobj != null) {
+					logger.warn("createObject(): object with id " + obj.getId() + " already exists. Will replace it.");
+					deleteObject(obj.getId());
+				} else {
+					logger.info("createObject(): will use id set on object " + obj.getId());
+				}
+			}
+			else {
+				// this is kindof over-complicated and inefficient, but just in case that ids may be both set from outside and locally, we need to prevent duplications
+				long nextid;
+				T existingobj;
+				do {
+					nextid = currentObjectId++;
+					existingobj = readObject(nextid);
+				}
+				while (existingobj != null);
+				logger.info("createObject(): will assign local id: " + nextid);
+				obj.setId(nextid);
+			}
+			this.objects.add(obj);
+		}
+		else {
+			// assign an id and add it to the list
+			obj.setId(currentObjectId++);
+			this.objects.add(obj);
+		}
 
 		return obj;
 	}
@@ -58,7 +101,7 @@ public class GenericCRUDExecutor<T extends GenericCRUDEntity> {
 	 * read all object
 	 */
 	public List<T> readAllObjects() {
-		System.out.println("readAllObjects(): " + this.objects);
+		logger.info("readAllObjects(): " + this.objects);
 
 		return this.objects;
 	}
@@ -67,12 +110,12 @@ public class GenericCRUDExecutor<T extends GenericCRUDEntity> {
 	 * delete an object given its id
 	 */
 	public boolean deleteObject(final long toDeleteId) {
-		System.out.println("deleteObject(): " + toDeleteId);
+		logger.info("deleteObject(): " + toDeleteId);
 
 		try {
 			return this.objects.remove(readObject(toDeleteId));
 		} catch (Exception e) {
-			System.err.println("got an exception trying to delete object for id "
+			logger.error("got an exception trying to delete object for id "
 					+ toDeleteId + ". Supposedly, this object does not exist.");
 			return false;
 		}
@@ -82,14 +125,14 @@ public class GenericCRUDExecutor<T extends GenericCRUDEntity> {
 	 * update an existing object
 	 */
 	public T updateObject(final T obj) {
-		System.out.println("updateObject(): " + obj);
+		logger.info("updateObject(): " + obj);
 
 		// we try to read the object given the id of the object that is being
 		// updated
 		T readObj = readObject(obj.getId());
 
 		if (readObj == null) {
-			System.out.println("could not find object to be updated with id "
+			logger.info("could not find object to be updated with id "
 					+ obj.getId() + ". Will create a new one.");
 			return createObject(obj);
 		}
@@ -106,25 +149,25 @@ public class GenericCRUDExecutor<T extends GenericCRUDEntity> {
 	 * load the data from the file
 	 */
 	public void load() {
-		System.out.println("load()...");
+		logger.info("load()...");
 
 		try {
 			if (!this.objectsDatabaseFile.exists()) {
-				System.out.println("the file " + this.objectsDatabaseFile
+				logger.info("the file " + this.objectsDatabaseFile
 						+ " does not exist yet. Will not try to read anything.");
 			} else {
 				ObjectInputStream ois = new ObjectInputStream(
 						new FileInputStream(this.objectsDatabaseFile));
 
 				// first we try to read the currentObjectId
-				this.currentObjectId = ois.readInt();
-				System.out.println("load(): read objectId: " + currentObjectId);
+				this.currentObjectId = ois.readLong();
+				logger.info("load(): read objectId: " + currentObjectId);
 
 				// then try to read the objects
 				T obj = null;
 				do {
 					obj = (T) ois.readObject();
-					System.out.println("load(): read object: " + obj);
+					logger.info("load(): read object: " + obj);
 
 					if (obj != null) {
 						this.objects.add(obj);
@@ -132,49 +175,49 @@ public class GenericCRUDExecutor<T extends GenericCRUDEntity> {
 				} while (true);
 			}
 		} catch (EOFException eof) {
-			System.out.println("we have reached the end of the data file");
+			logger.info("we have reached the end of the data file");
 		} catch (Exception e) {
 			String err = "got exception: " + e;
-			System.err.println(err);
+			logger.error(err);
 			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
 
-		System.out.println("load(): objects are: " + objects);
+		logger.info("load(): objects are: " + objects);
 	}
 
 	/**
 	 * store the data to the file
 	 */
 	public void store() {
-		System.out.println("store()...");
+		logger.info("store()...");
 
 		try {
 			ObjectOutputStream oos = new ObjectOutputStream(
 					new FileOutputStream(this.objectsDatabaseFile));
 
 			// write the currentObjectId
-			oos.writeInt(this.currentObjectId);
+			oos.writeLong(this.currentObjectId);
 			// then write the objects
 			for (T tp : this.objects) {
 				oos.writeObject(tp);
 			}
 		} catch (Exception e) {
 			String err = "got exception: " + e;
-			System.err.println(err);
+			logger.error(err);
 			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
 
-		System.out.println("store(): done.");
+		logger.info("store(): done.");
 	}
 
 	/*
 	 * read an object given its id
 	 */
 	public T readObject(long i) {
-		System.out.println("readObject(): " + i);
-		
+		logger.info("readObject(): " + i);
+
 		for (T obj : this.objects) {
 			if (obj.getId() == i) {
 				return obj;
