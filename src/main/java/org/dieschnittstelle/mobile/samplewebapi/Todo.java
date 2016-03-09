@@ -56,8 +56,7 @@ public class Todo implements Serializable, GenericCRUDEntity {
 		this.contacts = contacts;
 	}
 
-	public Todo(long id, String name, String description) {
-		this.id = id;
+	public Todo(String name, String description) {
 		this.name = name;
 		this.description = description;
 	}
@@ -92,13 +91,6 @@ public class Todo implements Serializable, GenericCRUDEntity {
 
 	public boolean equals(Object other) {
 		return this.getId() == ((Todo) other).getId();
-	}
-
-	public Todo updateFrom(Todo item) {
-		this.setDescription(item.getDescription());
-		this.setName(item.getName());
-
-		return this;
 	}
 
 	public String toString() {

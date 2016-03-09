@@ -1,5 +1,6 @@
-package org.dieschnittstelle.mobile.samplewebapi;
+package org.dieschnittstelle.mobile.samplewebapi.impl;
 
+import org.dieschnittstelle.mobile.samplewebapi.impl.RemoteDataItemCRUDOperationsImpl;
 import org.dieschnittstelle.mobile.samplewebapi.impl.RemoteTodoCRUDOperationsImpl;
 import org.dieschnittstelle.mobile.samplewebapi.impl.RemoteUserOperationsImpl;
 
@@ -13,10 +14,10 @@ import java.util.HashSet;
  * Created by master on 07.03.16.
  */
 @ApplicationPath("/api")
-public class RestAPI extends Application {
+public class RestAPIImpl extends Application {
 
     @Override
     public Set<Class<?>> getClasses() {
-        return new HashSet(Arrays.asList(new Class[]{RemoteTodoCRUDOperationsImpl.class, RemoteUserOperationsImpl.class}));
+        return new HashSet(Arrays.asList(new Class[]{RemoteTodoCRUDOperationsImpl.class, RemoteUserOperationsImpl.class, RemoteDataItemCRUDOperationsImpl.class}));
     }
 }

@@ -1,28 +1,28 @@
 package org.dieschnittstelle.mobile.samplewebapi.impl;
 
-import java.io.File;
+import org.apache.log4j.Logger;
+import org.dieschnittstelle.mobile.samplewebapi.DataItem;
+import org.dieschnittstelle.mobile.samplewebapi.crud.GenericCRUDExecutor;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
-
-import org.apache.log4j.Logger;
-import org.dieschnittstelle.mobile.samplewebapi.Todo;
-import org.dieschnittstelle.mobile.samplewebapi.crud.GenericCRUDExecutor;
+import javax.xml.crypto.Data;
+import java.io.File;
 
 @WebListener
-public class RemoteTodoServletContextListener implements ServletContextListener {
+public class RemoteDataItemCRUDServletContextListener implements ServletContextListener {
 
 	protected static Logger logger = Logger
-			.getLogger(RemoteTodoServletContextListener.class);
+			.getLogger(RemoteDataItemCRUDServletContextListener.class);
 
 	@Override
 	public void contextDestroyed(ServletContextEvent evt) {
 		logger.info("contextDestroyed()");
 
 		// we read out the TouchpointCRUDExecutor and let it store its content
-		GenericCRUDExecutor<Todo> exec = (GenericCRUDExecutor<Todo>) evt.getServletContext()
-				.getAttribute("todoCRUD");
+		GenericCRUDExecutor<DataItem> exec = (GenericCRUDExecutor<DataItem>) evt.getServletContext()
+				.getAttribute("dataitemCRUD");
 
 		logger.info("contextDestroyed(): loaded executor from context: " + exec);
 
@@ -39,21 +39,21 @@ public class RemoteTodoServletContextListener implements ServletContextListener 
 
 		// we create a new executor for a file to be stored in the context root
 		String rootPath = evt.getServletContext().getRealPath("/");
-		GenericCRUDExecutor<Todo> exec = new GenericCRUDExecutor<Todo>(new File(rootPath,
-				"todo.data"));
+		GenericCRUDExecutor<DataItem> exec = new GenericCRUDExecutor<DataItem>(new File(rootPath,
+				"dataitems.data"));
 
 		// we call load() on the executor to load any exsisting data (if there
 		// are any)
 		exec.load();
 
-		exec.createObject(new Todo(0, String.valueOf(System.currentTimeMillis()),
-				"lorem"));
-		exec.createObject(new Todo(1, String.valueOf(System.currentTimeMillis()),
-				"ipsum"));
+		exec.createObject(new DataItem("Item " + String.valueOf(System.currentTimeMillis()),
+				"direm lopsum consectetur"));
+		exec.createObject(new DataItem("Item " + String.valueOf(System.currentTimeMillis()),
+				"lorem dipsum at simet"));
 
 		// then we put the executor into the context to make it available to the
 		// other components
-		evt.getServletContext().setAttribute("todoCRUD", exec);
+		evt.getServletContext().setAttribute("dataitemCRUD", exec);
 
 	}
 
