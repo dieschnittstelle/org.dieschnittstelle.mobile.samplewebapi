@@ -1,5 +1,6 @@
 package org.dieschnittstelle.mobile.samplewebapi.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletContext;
@@ -59,6 +60,23 @@ public class RemoteTodoCRUDOperationsImpl implements
 		item.setId(id);
 		logger.info("updateItem(): " + item);
 		return this.crudExecutor.updateObject(item);
+	}
+
+	public boolean deleteAllTodos() {
+		logger.info("deleteAllTodos()");
+		List<Todo> todos = new ArrayList<Todo>(this.crudExecutor.readAllObjects());
+		logger.info("deleteAllTodos(): will delete " + todos.size() + " todos...");
+		for (Todo todo : todos) {
+			logger.info("deleteAllTodos(): delete: " + todo.getId());
+			this.crudExecutor.deleteObject(todo.getId());
+		}
+		if (this.crudExecutor.readAllObjects().size() == 0) {
+			logger.info("deleteAllTodos(): all todos have been deleted: " + this.crudExecutor.readAllObjects());
+			return true;
+		}
+		logger.info("deleteAllTodos(): some todos could not be deleted " + this.crudExecutor.readAllObjects());
+
+		return false;
 	}
 
 	@Override

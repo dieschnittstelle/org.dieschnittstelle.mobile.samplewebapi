@@ -34,6 +34,9 @@ public interface ITodoCRUDOperations {
 	public Todo updateTodo(@PathParam("itemId") long id, Todo item);
 
 	@DELETE
+	public boolean deleteAllTodos();
+
+	@DELETE
 	@Path("/{itemId}")
 	public boolean deleteTodo(@PathParam("itemId") long dataItemId);
 
