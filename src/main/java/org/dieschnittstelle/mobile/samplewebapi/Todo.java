@@ -134,7 +134,7 @@ public class Todo implements Serializable, GenericCRUDEntity {
 
 		}
 
-		public LatLng(long lat,long lng) {
+		public LatLng(double lat,double lng) {
 			this.lat = lat;
 			this.lng = lng;
 		}
