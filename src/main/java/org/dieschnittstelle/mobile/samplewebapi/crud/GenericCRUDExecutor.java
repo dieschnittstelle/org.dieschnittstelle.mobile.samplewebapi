@@ -79,7 +79,7 @@ public class GenericCRUDExecutor<T extends GenericCRUDEntity> {
 				long nextid;
 				T existingobj;
 				do {
-					nextid = currentObjectId++;
+					nextid = ++currentObjectId;
 					existingobj = readObject(nextid);
 				}
 				while (existingobj != null);
@@ -90,7 +90,7 @@ public class GenericCRUDExecutor<T extends GenericCRUDEntity> {
 		}
 		else {
 			// assign an id and add it to the list
-			obj.setId(currentObjectId++);
+			obj.setId(++currentObjectId);
 			this.objects.add(obj);
 		}
 
