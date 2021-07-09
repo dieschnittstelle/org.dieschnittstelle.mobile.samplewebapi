@@ -32,6 +32,7 @@ public class RemoteUserOperationsImpl implements IUserOperations {
 			if (pwd != null && pwd.length() == 6) {
 				TEST_EMAIL = email;
 				TEST_PWD = pwd;
+				logger.info("prepare(): setting test user credentials to: email: " + email + ", pwd: " + pwd);
 				return true;
 			}
 			else {

@@ -6,9 +6,11 @@ import java.util.*;
 
 public class TodoPopulator {
 
+    private static final long GRANULARITY = 15*60*1000;
+
     public static List<Todo> createDefaultTodos() {
         // take the current time
-        long currenttime = System.currentTimeMillis();
+        long currenttime = (System.currentTimeMillis() / GRANULARITY) * GRANULARITY;
 
         // create a calendar
         GregorianCalendar cal = new GregorianCalendar();
