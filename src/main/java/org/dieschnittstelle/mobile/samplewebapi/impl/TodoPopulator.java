@@ -24,8 +24,13 @@ public class TodoPopulator {
             todo.setName(name);
             todo.setDescription("");
             // we add one day
-            cal.add(Calendar.DAY_OF_MONTH,1);
-            todo.setExpiry(cal.getTimeInMillis());
+            if (todos.size() == 0) {
+                todo.setExpiry(currenttime - (10 * GRANULARITY));
+            }
+            else {
+                cal.add(Calendar.DAY_OF_MONTH,1);
+                todo.setExpiry(cal.getTimeInMillis());
+            }
 
             todos.add(todo);
         }
