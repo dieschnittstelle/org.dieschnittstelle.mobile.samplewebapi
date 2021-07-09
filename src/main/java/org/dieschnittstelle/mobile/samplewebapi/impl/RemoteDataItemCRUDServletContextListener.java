@@ -7,7 +7,6 @@ import org.dieschnittstelle.mobile.samplewebapi.crud.GenericCRUDExecutor;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
-import javax.xml.crypto.Data;
 import java.io.File;
 
 @WebListener
