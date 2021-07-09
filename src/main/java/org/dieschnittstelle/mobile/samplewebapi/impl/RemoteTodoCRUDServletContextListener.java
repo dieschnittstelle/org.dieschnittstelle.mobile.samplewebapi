@@ -46,10 +46,11 @@ public class RemoteTodoCRUDServletContextListener implements ServletContextListe
 		// are any)
 		exec.load();
 
-		exec.createObject(new Todo("Todo " + String.valueOf(System.currentTimeMillis()),
-				"lorem ipsum dolor"));
-		exec.createObject(new Todo("Todo " + String.valueOf(System.currentTimeMillis()),
-				"sit amet consectetur"));
+		if (exec.readAllObjects().size() == 0) {
+			for (Todo todo : TodoPopulator.createDefaultTodos()) {
+				exec.createObject(todo);
+			}
+		}
 
 		// then we put the executor into the context to make it available to the
 		// other components

@@ -84,4 +84,12 @@ public class RemoteTodoCRUDOperationsImpl implements
 		return this.crudExecutor.readObject(itemId);
 	}
 
+	@Override
+	public boolean reset() {
+		this.deleteAllTodos();
+		for (Todo todo : TodoPopulator.createDefaultTodos()) {
+			this.crudExecutor.createObject(todo);
+		}
+		return true;
+	}
 }

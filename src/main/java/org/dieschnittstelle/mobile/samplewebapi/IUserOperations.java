@@ -1,9 +1,6 @@
 package org.dieschnittstelle.mobile.samplewebapi;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 
 @Path("/users")
 @Consumes({ "application/json" })
@@ -13,5 +10,9 @@ public interface IUserOperations {
 	@PUT
 	@Path("/auth")
 	public boolean authenticateUser(User user);
+
+	@PUT
+	@Path("/prepare")
+	public boolean prepare(@QueryParam("email") String email,@QueryParam("pwd") String pwd);
 
 }

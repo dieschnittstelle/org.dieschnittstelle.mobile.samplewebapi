@@ -7,6 +7,16 @@
 <script type="text/javascript">
 var todos;
 
+function initialiseView() {
+	readAllTodos();
+	// prepare the reset
+	document.getElementById("resetButton").onclick = () => {
+		callWebapp("POST", "/api/todos/reset", null, function(xmlhttp) {
+			readAllTodos();
+		});
+	}
+}
+
 function readAllTodos() {
 	
 	callWebapp("GET", "/api/todos", null, function(xmlhttp) {
@@ -224,12 +234,14 @@ function drawTodosTable() {
 		}
 }
 </script>
-<body onload="readAllTodos()">
+<body onload="initialiseView()">
 	<h3>Todos</h3>
 
 	<!-- create a table -->
 	<table border="1" id="todosTable">
 	</table>
+	<button id="resetButton">reset</button>
+
 	<!--  create a new todo -->
 	<h3>New Todo</h3>
 	<form id="createForm" method="POST"
