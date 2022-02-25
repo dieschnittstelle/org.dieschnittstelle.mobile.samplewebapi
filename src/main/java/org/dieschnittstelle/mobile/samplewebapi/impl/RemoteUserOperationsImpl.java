@@ -22,12 +22,14 @@ public class RemoteUserOperationsImpl implements IUserOperations {
 	 */
 	@Override
 	public boolean authenticateUser(User user) {
-		logger.info("authenticateUser(): " + user);
+		logger.info("authenticateUser(): " + user + ", with email: " + user.getEmail() + ", and pwd: " + user.getPwd());
 		return TEST_EMAIL.equals(user.getEmail()) && TEST_PWD.equals(user.getPwd());
 	}
 
 	@Override
-	public boolean prepare(String email, String pwd) {
+	public boolean prepare(User user) {
+		String email = user.getEmail();
+		String pwd = user.getPwd();
 		if (email != null && VALID_EMAIL_ADDRESS_REGEX.matcher(email).matches()) {
 			if (pwd != null && pwd.length() == 6) {
 				TEST_EMAIL = email;

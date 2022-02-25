@@ -13,6 +13,6 @@ public interface IUserOperations {
 
 	@PUT
 	@Path("/prepare")
-	public boolean prepare(@QueryParam("email") String email,@QueryParam("pwd") String pwd);
+	public boolean prepare(User user);
 
 }
