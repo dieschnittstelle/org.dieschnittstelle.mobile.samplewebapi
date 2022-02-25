@@ -40,7 +40,7 @@ public interface ITodoCRUDOperations {
 	@Path("/{itemId}")
 	public boolean deleteTodo(@PathParam("itemId") long dataItemId);
 
-	@POST
+	@PUT
 	@Path("/reset")
 	public boolean reset();
 
