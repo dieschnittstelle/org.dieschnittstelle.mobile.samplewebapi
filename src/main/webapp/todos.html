@@ -11,7 +11,7 @@ function initialiseView() {
 	readAllTodos();
 	// prepare the reset
 	document.getElementById("resetButton").onclick = () => {
-		callWebapp("POST", "/api/todos/reset", null, function(xmlhttp) {
+		callWebapp("PUT", "/api/todos/reset", null, function(xmlhttp) {
 			readAllTodos();
 		});
 	}
